@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>simple3D-1</title>
+    <style>
+      html,
+      body,
+      #map {
+		  padding: 0;
+		  margin: 0;
+		  height: 100%;
+		  width: 100%;
+      }
+    </style>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.10/esri/css/main.css">
+    <script src="https://js.arcgis.com/4.10/"></script>
+    <script>
+		require(["esri/Map", "esri/layers/CSVLayer", "esri/views/SceneView", "esri/widgets/Legend"],
+		function(Map, CSVLayer, SceneView, Legend) {
+			// Template pre popup okno (maptip), ktoré sa zobrazí po kliknutí na objekt
+			var template = {
+				title: "{city}",
+				content: "GPS poloha: <b>{latitude}, {longitude}</b><br>" + 
+					"Rozloha: <b>{area} km<sup>2</sup></b><br>" + 
+					"Hustota osídlenia: <b>{citizensDensity} obyvateľov / km<sup>2</sup></b><br>" +
+					"Počet obyvateľov: <b>{citizensCount}</b><br>" +
+					"Prvá písomná zmienka: <b>rok {firstMention}</b><br>" +
+					"Priemerné / maximálne svetelné znečistenie: <b>{lightPollutionAvg} / {lightPollutionMax}</b>"
+			};
+			
+			// Renderer, ktorý určuje, ako sa majú vykresľovať body do mapy
+			var renderer = {
+				type: "simple",
+				symbol: {
+					type: "point-3d",
+					symbolLayers: [{
+						type: "icon",
+						material: {
+							color: [255, 0, 0, 0.5]
+							// ----^--- definovaná nemenná farba
+						},
+						size: 5
+						// ---^---- definovaná pevná veľkosť
+					}]
+				}
+			};
+
+			// Vrstva so zdrojom údajov typu csv
+			var csvLayer = new CSVLayer({
+				url: "https://raw.githubusercontent.com/zymestic/codecon2019/master/data/data.csv",
+				popupTemplate: template,
+				renderer: renderer,
+				title: "Mestá nad 20 000 obyvateľov",
+				elevationInfo: {
+					mode: "on-the-ground"
+				}
+			});
+
+			// Mapový objekt
+			var map = new Map({
+				basemap: "gray",
+				layers: [csvLayer]
+			});
+
+			// 3D zobrazenie mapy
+			var view = new SceneView({
+				container: "map",
+				center: [19.5, 48.7],
+				zoom: 8,
+				map: map
+			});
+			
+			// Pridanie legendy do 3D zobrazenia mapy
+			view.ui.add(new Legend({
+				view: view
+			}), "bottom-right");
+		});
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+  </body>
+</html>
